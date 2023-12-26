@@ -26,7 +26,9 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
-
+app.get("/",(req,res)=>{
+  res.send("Hello world");
+})
 app.listen(PORT, () => {
   console.log("Live in port ", PORT);
 });
