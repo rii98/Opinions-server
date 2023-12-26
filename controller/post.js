@@ -4,11 +4,13 @@ const { z } = require("zod");
 const handleGetSomePost = async (req, res) => {
   const { page } = req.query;
   console.log(page);
-
   const count = 10;
   const skip = (Number(page) - 1) * count;
   try {
-    const posts = await Post.find().skip(skip).limit(count);
+    const posts = await Post.find()
+      .skip(skip)
+      .limit(count)
+      .sort({ createdAt: -1 });
     console.log(posts);
     res.json(posts);
   } catch (error) {
