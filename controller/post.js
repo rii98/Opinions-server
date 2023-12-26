@@ -5,7 +5,7 @@ const handleGetSomePost = async (req, res) => {
   const { page } = req.query;
   console.log(page);
 
-  const count = 2;
+  const count = 10;
   const skip = (Number(page) - 1) * count;
   try {
     const posts = await Post.find().skip(skip).limit(count);
