@@ -1,4 +1,4 @@
-const Post = require("../models/Post");
+const Post = require("../models/postmodel");
 const { z } = require("zod");
 
 const handleGetSomePost = async (req, res) => {

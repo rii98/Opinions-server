@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const { handleCreate } = require("../controller/post.JS");
-const { handleGetSomePost } = require("../controller/post.JS");
+const { handleCreate, handleGetSomePost } = require("../controller/post.js");
+
 router.post("/create", handleCreate);
 router.get("/some", handleGetSomePost);
 
