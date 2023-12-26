@@ -8,7 +8,7 @@ const app = express();
 const MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
 app.use(
   cors({
-    origin: "https://opinions-client.vercel.app/",
+    origin: "https://opinions-client.vercel.app",
     methods: ["POST", "GET", "DELETE", "PUT"],
     credentials: true,
   })
