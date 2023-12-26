@@ -11,7 +11,7 @@ const handleGetSomePost = async (req, res) => {
       .skip(skip)
       .limit(count)
       .sort({ createdAt: -1 });
-    console.log(posts);
+
     res.json(posts);
   } catch (error) {
     console.log("Error while fetching some post: ", error);
