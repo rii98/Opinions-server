@@ -14,8 +14,8 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
     if (user.validatePassword(password)) {
       const token = user.generatejwt();
-      const { email, firstname, lastname } = user;
-      res.json({ email, firstname, lastname, token });
+      const { email, firstname, lastname, _id } = user;
+      res.json({ email, firstname, lastname, token, id: _id });
     } else {
       res.status(401).json({ message: "Incorrect email or password." });
     }
@@ -26,9 +26,10 @@ const login = async (req, res) => {
 
 const signup = async (req, res) => {
   const { email, password, confirmPassword, firstname, lastname } = req.body;
+  console.log(req.body);
   const signupSchema = z
     .object({
-      email: z.string().email("Invalid email zod error"),
+      email: z.string().email(),
       password: z
         .string()
         .min(8, "Password must be 8 character long zod error."),
@@ -48,7 +49,7 @@ const signup = async (req, res) => {
   try {
     const user = await User.create({ email, password, firstname, lastname });
     const token = user.generatejwt();
-    res.json({ email, firstname, lastname, token });
+    res.json({ email, firstname, lastname, token, id: user._id });
   } catch (error) {
     console.log(error);
     res.status(400).json(error);

@@ -15,7 +15,7 @@ function validatejwt(req, res, next) {
 }
 
 function globalCatch(error, req, res, next) {
-  res.json({ error });
+  res.error({ error });
 }
 
 module.exports = { validatejwt, globalCatch };
