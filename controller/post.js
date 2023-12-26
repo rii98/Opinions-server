@@ -1,9 +1,7 @@
 const Post = require("../models/postmodel");
 const { z } = require("zod");
-
 const handleGetSomePost = async (req, res) => {
   const { page } = req.query;
-  console.log(page);
   const count = 10;
   const skip = (Number(page) - 1) * count;
   try {
