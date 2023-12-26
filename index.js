@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/post", postRouter);
 mongoose
   .connect(
-    `mongodb+srv://riyajbhandari98:${MONGODB_PASSWORD}@cluster0.s5jotga.mongodb.net/?retryWrites=true&w=majority`
+    `mongodb+srv://riyajbhandari98:${MONGODB_PASSWORD}@opinion.bcqo14y.mongodb.net/?retryWrites=true&w=majority`
   )
   .then(() => {
     console.log("Connected to Database");
