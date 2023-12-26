@@ -3,7 +3,7 @@ const { z } = require("zod");
 const login = async (req, res) => {
   const { email, password } = req.body;
   const loginSchema = z.object({
-    email: z.email(),
+    email: z.string().email(),
     password: z.string().min(8, "Password must be 8 character long zod error."),
   });
 
@@ -44,11 +44,7 @@ const signup = async (req, res) => {
   const validation = signupSchema.safeParse(req.body);
   if (!validation.success)
     return res.status(400).json({ error: validation.error });
-  // if (password !== confirmPassword) {
-  //   return res
-  //     .status(400)
-  //     .json({ message: "Password and Confirm password don't match." });
-  // }
+
   try {
     const user = await User.create({ email, password, firstname, lastname });
     const token = user.generatejwt();
