@@ -1,4 +1,5 @@
 const Post = require("../models/postmodel");
+const mongoose = require("mongoose");
 const { z } = require("zod");
 const handleGetSomePost = async (req, res) => {
   const { page } = req.query;
@@ -8,7 +9,11 @@ const handleGetSomePost = async (req, res) => {
     const posts = await Post.find()
       .skip(skip)
       .limit(count)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "user",
+        select: "-password -createdAt -updatedAt -__v",
+      });
 
     res.json(posts);
   } catch (error) {
@@ -18,9 +23,13 @@ const handleGetSomePost = async (req, res) => {
 };
 
 const handleCreate = async (req, res) => {
-  const { text } = req.body;
+  console.log(req.body);
+  const { text, user } = req.body;
   const postSchema = z.object({
     text: z.string().min(1, "Opinions field cannot be empty."),
+    user: z.string().refine((value) => mongoose.Types.ObjectId.isValid(value), {
+      message: "Invalid user id zod error",
+    }),
   });
 
   const validation = postSchema.safeParse(req.body);
@@ -30,6 +39,7 @@ const handleCreate = async (req, res) => {
   try {
     const test = await Post.create({
       text,
+      user,
     });
     res.status(201).json(test);
   } catch (error) {
