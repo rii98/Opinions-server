@@ -1,6 +1,7 @@
 const Post = require("../models/postmodel");
 const mongoose = require("mongoose");
 const { z } = require("zod");
+const User = require("../models/usermodel");
 const handleGetSomePost = async (req, res) => {
   const { page } = req.query;
   const count = 10;
@@ -41,7 +42,13 @@ const handleCreate = async (req, res) => {
       text,
       user,
     });
-    res.status(201).json(test);
+
+    const userf = await Post.findById({ _id: test._id }).populate({
+      path: "user",
+      select: "-password -createdAt -updatedAt -__v",
+    });
+
+    res.status(201).json(userf);
   } catch (error) {
     console.log("Error in creating new post: ", error);
     res.status(500).json(error);

@@ -9,7 +9,11 @@ router.get("/popular", validatejwt, async (req, res, next) => {
   try {
     const popular = await Post.find()
       .sort({ upvotes: -1, createdAt: -1 })
-      .limit(10);
+      .limit(10)
+      .populate({
+        path: "user",
+        select: "-password -createdAt -updatedAt -__v",
+      });
     res.json(popular);
   } catch (error) {
     next(error);
