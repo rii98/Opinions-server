@@ -1,5 +1,6 @@
 const User = require("../models/usermodel");
 const { z } = require("zod");
+const jwt = require("jsonwebtoken");
 const login = async (req, res) => {
   const { email, password } = req.body;
   const loginSchema = z.object({
@@ -56,4 +57,16 @@ const signup = async (req, res) => {
   }
 };
 
-module.exports = { login, signup };
+const authValidate = (req, res) => {
+  const { authorization } = req.headers;
+  if (!authorization) return res.status(401).json({ verified: false });
+  const token = authorization.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_KEY);
+    return res.json({ verified: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(401).json({ verified: false });
+  }
+};
+module.exports = { login, signup, authValidate };
