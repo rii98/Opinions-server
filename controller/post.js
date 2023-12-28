@@ -85,6 +85,7 @@ const handleUpvotes = async (req, res) => {
         { _id: post },
         {
           $push: { upvotes: newUpvote },
+          $inc: { upvotesCount: 1 },
         },
         {
           new: true,
@@ -100,6 +101,7 @@ const handleUpvotes = async (req, res) => {
         { _id: post },
         {
           $pull: { upvotes: { _id } },
+          $inc: { upvotesCount: -1 },
         },
         {
           new: true,

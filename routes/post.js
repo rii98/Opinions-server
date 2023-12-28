@@ -13,7 +13,7 @@ router.get("/some", validatejwt, handleGetSomePost);
 router.get("/popular", validatejwt, async (req, res, next) => {
   try {
     const popular = await Post.find()
-      .sort({ upvotes: -1, createdAt: -1 })
+      .sort({ upvotesCount: -1, createdAt: -1 })
       .limit(10)
       .populate({
         path: "user",

@@ -6,7 +6,12 @@ const PostSchema = mongoose.Schema(
       type: String,
       required: [true, "Post cannot be empty."],
     },
-    upvotes: [upvoteSchema], // Change type to an array of Upvotes
+    upvotes: [upvoteSchema],
+    // Change type to an array of Upvotes,
+    upvotesCount: {
+      type: Number,
+      default: 0,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
