@@ -57,7 +57,65 @@ const handleCreate = async (req, res) => {
 };
 
 const handleUpvotes = async (req, res) => {
+  const { post, user, add } = req.body;
+
+  const localUpvotesSchema = z.object({
+    post: z.string().refine((value) => mongoose.Types.ObjectId.isValid(value), {
+      message: "Invalid postid",
+    }),
+    user: z.string().refine((value) => mongoose.Types.ObjectId.isValid(value), {
+      message: "Invalid userid",
+    }),
+    add: z.string(),
+  });
+
+  const validation = localUpvotesSchema.safeParse(req.body);
+  if (!validation.success)
+    return res.status(400).json({ error: validation.error });
+
+  try {
+    if (add === "true") {
+      if (await Upvote.findOne({ post, user }))
+        return res.json({
+          message: "Cannot like the post already liked.",
+        });
+
+      const newUpvote = await Upvote.create({ post, user });
+      const selectedPost = await Post.findByIdAndUpdate(
+        { _id: post },
+        {
+          $push: { upvotes: newUpvote },
+        },
+        {
+          new: true,
+        }
+      );
+      res.json({ newUpvote });
+    } else {
+      const removedUpvote = await Upvote.findOneAndDelete({ post, user });
+      if (!removedUpvote)
+        return res.status(404).json({ message: "Cannot find the upvote." });
+      const { _id } = removedUpvote;
+      const selectedPost = await Post.findByIdAndUpdate(
+        { _id: post },
+        {
+          $pull: { upvotes: { _id } },
+        },
+        {
+          new: true,
+        }
+      );
+      return res.json({ selectedPost });
+    }
+  } catch (error) {
+    console.log("Error adding new upvote:", error);
+    res.status(400).json(error);
+  }
+};
+
+const checkIfAlreadyLiked = async (req, res) => {
   const { post, user } = req.body;
+  console.log(req.body);
   const localUpvotesSchema = z.object({
     post: z.string().refine((value) => mongoose.Types.ObjectId.isValid(value), {
       message: "Invalid postid",
@@ -73,14 +131,21 @@ const handleUpvotes = async (req, res) => {
 
   try {
     if (await Upvote.findOne({ post, user }))
-      return res.json({ message: "Cannot like the post already liked." });
+      return res.json({
+        alreadyLiked: true,
+      });
 
-    const newUpvote = await Upvote.create({ post, user });
-    res.json(newUpvote);
+    return res.json({
+      alreadyLiked: false,
+    });
   } catch (error) {
-    console.log("Error adding new upvote:", errror);
+    console.log(error);
     res.status(400).json(error);
   }
 };
-
-module.exports = { handleCreate, handleGetSomePost, handleUpvotes };
+module.exports = {
+  handleCreate,
+  handleGetSomePost,
+  handleUpvotes,
+  checkIfAlreadyLiked,
+};

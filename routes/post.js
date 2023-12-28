@@ -5,6 +5,7 @@ const {
   handleCreate,
   handleGetSomePost,
   handleUpvotes,
+  checkIfAlreadyLiked,
 } = require("../controller/post");
 const Post = require("../models/postmodel");
 router.post("/create", validatejwt, handleCreate);
@@ -12,7 +13,7 @@ router.get("/some", validatejwt, handleGetSomePost);
 router.get("/popular", validatejwt, async (req, res, next) => {
   try {
     const popular = await Post.find()
-      .sort({ upvotes: -1, createdAt: -1 })
+      .sort({ upvotes: 1, createdAt: -1 })
       .limit(10)
       .populate({
         path: "user",
@@ -23,6 +24,8 @@ router.get("/popular", validatejwt, async (req, res, next) => {
     next(error);
   }
 });
+
+router.post("/isliked", checkIfAlreadyLiked);
 
 router.post("/addupvote", handleUpvotes);
 
