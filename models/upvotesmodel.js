@@ -18,6 +18,6 @@ const upvoteSchema = mongoose.Schema(
   }
 );
 
-const Upvote = mongoose.model("Upvote", UpvoteSchema);
+const Upvote = mongoose.model("Upvote", upvoteSchema);
 
 module.exports = { Upvote, upvoteSchema };

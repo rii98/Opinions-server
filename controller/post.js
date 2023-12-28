@@ -1,7 +1,8 @@
 const Post = require("../models/postmodel");
 const mongoose = require("mongoose");
 const { z } = require("zod");
-const User = require("../models/usermodel");
+const { Upvote } = require("../models/upvotesmodel");
+
 const handleGetSomePost = async (req, res) => {
   const { page } = req.query;
   const count = 10;
@@ -55,4 +56,31 @@ const handleCreate = async (req, res) => {
   }
 };
 
-module.exports = { handleCreate, handleGetSomePost };
+const handleUpvotes = async (req, res) => {
+  const { post, user } = req.body;
+  const localUpvotesSchema = z.object({
+    post: z.string().refine((value) => mongoose.Types.ObjectId.isValid(value), {
+      message: "Invalid postid",
+    }),
+    user: z.string().refine((value) => mongoose.Types.ObjectId.isValid(value), {
+      message: "Invalid userid",
+    }),
+  });
+
+  const validation = localUpvotesSchema.safeParse(req.body);
+  if (!validation.success)
+    return res.status(400).json({ error: validation.error });
+
+  try {
+    if (await Upvote.findOne({ post, user }))
+      return res.json({ message: "Cannot like the post already liked." });
+
+    const newUpvote = await Upvote.create({ post, user });
+    res.json(newUpvote);
+  } catch (error) {
+    console.log("Error adding new upvote:", errror);
+    res.status(400).json(error);
+  }
+};
+
+module.exports = { handleCreate, handleGetSomePost, handleUpvotes };
