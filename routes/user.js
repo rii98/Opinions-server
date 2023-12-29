@@ -2,7 +2,12 @@ const express = require("express");
 const router = express.Router();
 const { validatejwt } = require("../middlewares/auth");
 
-const { getSelf, follow, searchUser } = require("../controller/user");
+const {
+  getSelf,
+  follow,
+  searchUser,
+  checkIfFollowing,
+} = require("../controller/user");
 const User = require("../models/usermodel");
 router.get("/search", searchUser);
 router.get("/self", validatejwt, getSelf);
@@ -24,5 +29,6 @@ router.get("/:id", validatejwt, async (req, res, next) => {
   }
 });
 router.post("/follow", validatejwt, follow);
+router.post("/isfollowing", validatejwt, checkIfFollowing);
 module.exports = router;
 //simple comment for test

@@ -9,6 +9,7 @@ const getSelf = async (req, res) => {
 const follow = async (req, res) => {
   const deselect = "-password -createdAt -updatedAt -__v";
   const { followerId, followingId } = req.body;
+  console.log(req.body);
 
   //unfollow
   if (await User.findOne({ _id: followingId, followers: followerId })) {
@@ -76,6 +77,20 @@ const follow = async (req, res) => {
     });
   res.json({ follower, following });
 };
+
+const checkIfFollowing = async (req, res) => {
+  const { followerId, followingId } = req.body;
+  try {
+    if (await User.findOne({ _id: followingId, followers: followerId })) {
+      return res.json({ following: true });
+    }
+    return res.json({ following: false });
+  } catch (error) {
+    console.log(error);
+    res.json(error);
+  }
+};
+
 //validation garna baki cha
 const searchUser = async (req, res) => {
   const { firstname, lastname, email } = req.query;
@@ -95,4 +110,4 @@ const searchUser = async (req, res) => {
     res.status(404).json(error);
   }
 };
-module.exports = { getSelf, follow, searchUser };
+module.exports = { getSelf, follow, searchUser, checkIfFollowing };
