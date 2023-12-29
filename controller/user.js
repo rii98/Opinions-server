@@ -4,6 +4,8 @@ const getSelf = async (req, res) => {
   const user = await User.findById({ _id: req.user.id }).select("-password");
   res.json(user);
 };
+
+//validation garna baki cha
 const follow = async (req, res) => {
   const deselect = "-password -createdAt -updatedAt -__v";
   const { followerId, followingId } = req.body;
@@ -74,4 +76,23 @@ const follow = async (req, res) => {
     });
   res.json({ follower, following });
 };
-module.exports = { getSelf, follow };
+//validation garna baki cha
+const searchUser = async (req, res) => {
+  const { firstname, lastname, email } = req.query;
+  try {
+    const users = await User.find({
+      firstname: new RegExp(firstname, "i"),
+      lastname: new RegExp(lastname, "i"),
+      email: new RegExp(email, "i"),
+    });
+    if (users.length === 0)
+      return res.status(404).json({
+        message: `No user with detail: ${firstname + " " + lastname}`,
+      });
+    res.json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(404).json(error);
+  }
+};
+module.exports = { getSelf, follow, searchUser };

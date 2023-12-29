@@ -17,5 +17,8 @@ router.post("/isliked", validatejwt, checkIfAlreadyLiked);
 
 router.post("/addupvote", validatejwt, handleUpvotes);
 
+router.get("/search", (req, res) => {
+  res.json({ message: "hi" });
+});
 module.exports = router;
 //simple comment for test

@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { validatejwt } = require("../middlewares/auth");
 
-const { getSelf, follow } = require("../controller/user");
+const { getSelf, follow, searchUser } = require("../controller/user");
 const User = require("../models/usermodel");
+router.get("/search", searchUser);
 router.get("/self", validatejwt, getSelf);
 router.get("/:id", validatejwt, async (req, res, next) => {
   const { id } = req.params;
