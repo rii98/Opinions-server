@@ -145,9 +145,25 @@ const checkIfAlreadyLiked = async (req, res) => {
     res.status(400).json(error);
   }
 };
+
+const getPopular = async (req, res, next) => {
+  try {
+    const popular = await Post.find()
+      .sort({ upvotesCount: -1, createdAt: -1 })
+      .limit(10)
+      .populate({
+        path: "user",
+        select: "-password -createdAt -updatedAt -__v",
+      });
+    res.json(popular);
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   handleCreate,
   handleGetSomePost,
   handleUpvotes,
   checkIfAlreadyLiked,
+  getPopular,
 };

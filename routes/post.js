@@ -6,28 +6,16 @@ const {
   handleGetSomePost,
   handleUpvotes,
   checkIfAlreadyLiked,
+  getPopular,
 } = require("../controller/post");
 const Post = require("../models/postmodel");
 router.post("/create", validatejwt, handleCreate);
 router.get("/some", validatejwt, handleGetSomePost);
-router.get("/popular", validatejwt, async (req, res, next) => {
-  try {
-    const popular = await Post.find()
-      .sort({ upvotesCount: -1, createdAt: -1 })
-      .limit(10)
-      .populate({
-        path: "user",
-        select: "-password -createdAt -updatedAt -__v",
-      });
-    res.json(popular);
-  } catch (error) {
-    next(error);
-  }
-});
+router.get("/popular", validatejwt, getPopular);
 
-router.post("/isliked", checkIfAlreadyLiked);
+router.post("/isliked", validatejwt, checkIfAlreadyLiked);
 
-router.post("/addupvote", handleUpvotes);
+router.post("/addupvote", validatejwt, handleUpvotes);
 
 module.exports = router;
 //simple comment for test
