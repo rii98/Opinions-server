@@ -22,6 +22,22 @@ const userSchema = new mongoose.Schema(
       minLength: [8, "Password should be atleast 8 character long."],
       required: [true, "Password is missing."],
     },
+    followers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "User",
+    },
+    followersCount: {
+      type: Number,
+      default: 0,
+    },
+    following: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "User",
+    },
+    followingCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
