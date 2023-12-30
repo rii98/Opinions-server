@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const { z } = require("zod");
 const { Upvote } = require("../models/upvotesmodel");
 
+const User = require("../models/usermodel");
 const handleGetSomePost = async (req, res) => {
   const { page } = req.query;
   const count = 10;
@@ -160,10 +161,28 @@ const getPopular = async (req, res, next) => {
     next(error);
   }
 };
+
+const getFeed = async (req, res) => {
+  const { id } = req.body;
+  const f = await User.findOne({ _id: id }).select("following -_id");
+  const followings = f.following;
+  let feed = [];
+
+  for (let i = 0; i < followings.length; i++) {
+    const fol = followings[i];
+    const posts = await Post.find({
+      user: fol,
+      createdAt: { $gte: new Date(Date.now() - 1000 * 86400 * 3) }, //within 3 days
+    });
+    feed = [...feed, ...posts];
+  }
+  return res.json(feed);
+};
 module.exports = {
   handleCreate,
   handleGetSomePost,
   handleUpvotes,
   checkIfAlreadyLiked,
   getPopular,
+  getFeed,
 };

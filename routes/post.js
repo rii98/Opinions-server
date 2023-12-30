@@ -2,13 +2,17 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 const { validatejwt } = require("../middlewares/auth");
+const { z } = require("zod");
 const {
   handleCreate,
   handleGetSomePost,
   handleUpvotes,
   checkIfAlreadyLiked,
   getPopular,
+  getFeed,
 } = require("../controller/post");
+
+const { SeenPost } = require("../models/helpermodel");
 const Post = require("../models/postmodel");
 const { isValid } = require("zod");
 router.post("/create", validatejwt, handleCreate);
@@ -32,6 +36,45 @@ router.get("/:id", validatejwt, async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
     console.log(error);
+  }
+});
+
+router.post("/feed", getFeed);
+
+router.post("/addseen", async (req, res) => {
+  const { userId, postId } = req.body;
+
+  const schema = z.object({
+    userId: z
+      .string()
+      .refine((value) => mongoose.Types.ObjectId.isValid(value), {
+        message: "Invalid id (zod error)",
+      }),
+    postId: z
+      .string()
+      .refine((value) => mongoose.Types.ObjectId.isValid(value), {
+        message: "Invalid id (zod error)",
+      }),
+  });
+
+  const validate = schema.safeParse(req.body);
+  if (!validate.success) return res.status(400).json(validate.error);
+
+  if (await SeenPost.findOne({ user: userId })) {
+    const seenPost = await SeenPost.findOneAndUpdate(
+      { user: userId },
+      { $push: { seenPosts: postId } },
+      {
+        new: true,
+      }
+    );
+    res.json(seenPost);
+  } else {
+    const seenPost = await SeenPost.create({
+      user: userId,
+      seenPosts: [postId],
+    });
+    res.json(seenPost);
   }
 });
 
