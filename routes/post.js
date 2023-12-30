@@ -14,7 +14,7 @@ const {
 
 const { SeenPost } = require("../models/helpermodel");
 const Post = require("../models/postmodel");
-const { isValid } = require("zod");
+
 router.post("/create", validatejwt, handleCreate);
 router.get("/some", validatejwt, handleGetSomePost);
 router.get("/popular", validatejwt, getPopular);
@@ -42,52 +42,35 @@ router.get("/:id", validatejwt, async (req, res) => {
 router.post("/feed", validatejwt, getFeed);
 
 router.post("/addseen", validatejwt, async (req, res) => {
-  const { userId, postId } = req.body;
-  const schema = z.object({
-    userId: z
-      .string()
-      .refine((value) => mongoose.Types.ObjectId.isValid(value), {
-        message: "Invalid id (zod error)",
-      }),
-    postId: z
-      .string()
-      .refine((value) => mongoose.Types.ObjectId.isValid(value), {
-        message: "Invalid id (zod error)",
-      }),
-  });
-  const validate = schema.safeParse(req.body);
-  if (!validate.success) return res.status(400).json(validate.error);
-
-  if (await SeenPost.findOne({ user: userId })) {
-    const checkIfAlreadySeen = await SeenPost.findOne({
-      user: userId,
-      seenPosts: postId,
+  try {
+    const { userId, postId } = req.body;
+    const schema = z.object({
+      userId: z
+        .string()
+        .refine((value) => mongoose.Types.ObjectId.isValid(value), {
+          message: "Invalid id (zod error)",
+        }),
+      postId: z
+        .string()
+        .refine((value) => mongoose.Types.ObjectId.isValid(value), {
+          message: "Invalid id (zod error)",
+        }),
     });
-    if (checkIfAlreadySeen) {
-      return res.json(checkIfAlreadySeen);
+
+    const validate = schema.safeParse(req.body);
+    if (!validate.success) {
+      return res.status(400).json({ error: "Invalid request data" });
     }
     const seenPost = await SeenPost.findOneAndUpdate(
       { user: userId },
-      { $push: { seenPosts: postId } },
-      {
-        new: true,
-      }
+      { $addToSet: { seenPosts: postId } },
+      { new: true, upsert: true }
     );
-    res.json(seenPost);
-  } else {
-    const seenPost = await SeenPost.create({
-      user: userId,
-      seenPosts: [postId],
-    });
-    res.json(seenPost);
+    res.json({ result: seenPost });
+  } catch (error) {
+    console.error("Error in /addseen route:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// router.post("/hi", async (req, res) => {
-//   const { fol } = req.body;
-//   const sp = await SeenPost.findOne({ user: fol }).select("seenPosts");
-//   const seenPosts = sp.seenPosts; //array only return
-//   res.json(seenPosts);
-// });
 module.exports = router;
-//simple comment for test

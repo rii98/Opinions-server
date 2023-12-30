@@ -167,6 +167,7 @@ const getFeed = async (req, res) => {
   console.log("header: ", req.body);
   const { id } = req.body;
   const f = await User.findOne({ _id: id }).select("following");
+  console.log(f);
   const sp = await SeenPost.findOne({ user: id }).select("seenPosts");
   const seenPosts = sp?.seenPosts || [];
   const followings = f.following;
