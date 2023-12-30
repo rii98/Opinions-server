@@ -43,7 +43,6 @@ router.post("/feed", getFeed);
 
 router.post("/addseen", async (req, res) => {
   const { userId, postId } = req.body;
-
   const schema = z.object({
     userId: z
       .string()
@@ -56,11 +55,17 @@ router.post("/addseen", async (req, res) => {
         message: "Invalid id (zod error)",
       }),
   });
-
   const validate = schema.safeParse(req.body);
   if (!validate.success) return res.status(400).json(validate.error);
 
   if (await SeenPost.findOne({ user: userId })) {
+    const checkIfAlreadySeen = await SeenPost.findOne({
+      user: userId,
+      seenPosts: postId,
+    });
+    if (checkIfAlreadySeen) {
+      return res.json(checkIfAlreadySeen);
+    }
     const seenPost = await SeenPost.findOneAndUpdate(
       { user: userId },
       { $push: { seenPosts: postId } },
@@ -78,5 +83,11 @@ router.post("/addseen", async (req, res) => {
   }
 });
 
+// router.post("/hi", async (req, res) => {
+//   const { fol } = req.body;
+//   const sp = await SeenPost.findOne({ user: fol }).select("seenPosts");
+//   const seenPosts = sp.seenPosts; //array only return
+//   res.json(seenPosts);
+// });
 module.exports = router;
 //simple comment for test

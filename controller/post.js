@@ -4,6 +4,7 @@ const { z } = require("zod");
 const { Upvote } = require("../models/upvotesmodel");
 
 const User = require("../models/usermodel");
+const { SeenPost } = require("../models/helpermodel");
 const handleGetSomePost = async (req, res) => {
   const { page } = req.query;
   const count = 10;
@@ -164,17 +165,23 @@ const getPopular = async (req, res, next) => {
 
 const getFeed = async (req, res) => {
   const { id } = req.body;
-  const f = await User.findOne({ _id: id }).select("following -_id");
+  const f = await User.findOne({ _id: id }).select("following");
+  const sp = await SeenPost.findOne({ user: id }).select("seenPosts");
+  const seenPosts = sp?.seenPosts || [];
   const followings = f.following;
   let feed = [];
-
   for (let i = 0; i < followings.length; i++) {
     const fol = followings[i];
-    const posts = await Post.find({
-      user: fol,
-      createdAt: { $gte: new Date(Date.now() - 1000 * 86400 * 3) }, //within 3 days
-    });
-    feed = [...feed, ...posts];
+    // const posts = await Post.find({
+    //   user: fol,
+    //   createdAt: { $gte: new Date(Date.now() - 1000 * 86400 * 3) }, //within 3 days
+    // });
+    // feed = [...feed, ...posts];
+
+    const posts = await Post.find({ user: fol }).select("_id");
+    const postsArray = posts.map((post) => post._id);
+    const f = postsArray.filter((p) => !seenPosts.includes(p));
+    feed = [...feed, ...f];
   }
   return res.json(feed);
 };
