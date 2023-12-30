@@ -164,6 +164,7 @@ const getPopular = async (req, res, next) => {
 };
 
 const getFeed = async (req, res) => {
+  console.log("header: ", req.body);
   const { id } = req.body;
   const f = await User.findOne({ _id: id }).select("following");
   const sp = await SeenPost.findOne({ user: id }).select("seenPosts");
@@ -177,10 +178,14 @@ const getFeed = async (req, res) => {
     //   createdAt: { $gte: new Date(Date.now() - 1000 * 86400 * 3) }, //within 3 days
     // });
     // feed = [...feed, ...posts];
+    const posts = await Post.find({ user: fol })
+      .populate({
+        path: "user",
+        select: "-password -createdAt -updatedAt -__v",
+      })
+      .sort({ createdAt: -1 });
 
-    const posts = await Post.find({ user: fol }).select("_id");
-    const postsArray = posts.map((post) => post._id);
-    const f = postsArray.filter((p) => !seenPosts.includes(p));
+    const f = posts.filter((p) => !seenPosts.includes(p._id));
     feed = [...feed, ...f];
   }
   return res.json(feed);

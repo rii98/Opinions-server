@@ -39,9 +39,9 @@ router.get("/:id", validatejwt, async (req, res) => {
   }
 });
 
-router.post("/feed", getFeed);
+router.post("/feed", validatejwt, getFeed);
 
-router.post("/addseen", async (req, res) => {
+router.post("/addseen", validatejwt, async (req, res) => {
   const { userId, postId } = req.body;
   const schema = z.object({
     userId: z

@@ -9,7 +9,7 @@ const {
   checkIfFollowing,
 } = require("../controller/user");
 const User = require("../models/usermodel");
-router.get("/search", searchUser);
+router.get("/search", validatejwt, searchUser);
 router.get("/self", validatejwt, getSelf);
 router.get("/:id", validatejwt, async (req, res, next) => {
   const { id } = req.params;
