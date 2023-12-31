@@ -30,5 +30,25 @@ router.get("/:id", validatejwt, async (req, res, next) => {
 });
 router.post("/follow", validatejwt, follow);
 router.post("/isfollowing", validatejwt, checkIfFollowing);
+router.get("/following/:id", validatejwt, async (req, res) => {
+  const { id } = req.params;
+
+  const user = await User.findById({ _id: id }).select("following").populate({
+    path: "following",
+    select: "-password -createdAt -updatedAt -__v",
+  });
+  res.json(user.following);
+});
+router.get("/followers/:id", validatejwt, async (req, res) => {
+  const { id } = req.params;
+
+  const user = await User.findById({ _id: id })
+    .select("followers -_id")
+    .populate({
+      path: "followers",
+      select: "-password -createdAt -updatedAt -__v",
+    });
+  res.json(user.followers);
+});
 module.exports = router;
 //simple comment for test
